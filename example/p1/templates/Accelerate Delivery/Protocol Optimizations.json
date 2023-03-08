@@ -1,0 +1,27 @@
+{
+  "name": "Protocol Optimizations",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "http2",
+      "options": {
+        "enabled": ""
+      }
+    },
+    {
+      "name": "allowTransferEncoding",
+      "options": {
+        "enabled": true
+      }
+    },
+    {
+      "name": "enhancedAkamaiProtocol",
+      "options": {
+        "display": ""
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": "Serve your website using modern and fast protocols.\n"
+}

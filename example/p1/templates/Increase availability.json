@@ -1,0 +1,12 @@
+{
+  "name": "Increase availability",
+  "children": [
+    "#include:Increase availability/Simulate failover.json",
+    "#include:Increase availability/Site failover.json",
+    "#include:Increase availability/Origin health.json"
+  ],
+  "behaviors": [],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": "Control how to respond when your origin or third parties are slow or even down to minimize the negative impact on user experience."
+}

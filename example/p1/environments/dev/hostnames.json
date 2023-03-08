@@ -1,0 +1,8 @@
+[
+    {
+        "cnameFrom": "dev.p1.stuartmacleod.net",
+        "cnameTo": "akamai.stuartmacleod.net.edgesuite.net",
+        "cnameType": "EDGE_HOSTNAME",
+        "edgeHostnameId": 3399363
+    }
+]

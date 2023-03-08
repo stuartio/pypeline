@@ -1,0 +1,41 @@
+{
+  "name": "Resource Optimizer",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "adaptiveAcceleration",
+      "options": {
+        "source": "mPulse",
+        "enablePush": false,
+        "enablePreconnect": false,
+        "preloadEnable": false,
+        "abLogic": "DISABLED",
+        "enableRo": true,
+        "enableBrotliCompression": false,
+        "titleHttp2ServerPush": "",
+        "titlePreconnect": "",
+        "titlePreload": "",
+        "abTesting": "",
+        "compression": "",
+        "titleRo": "",
+        "titleBrotli": ""
+      }
+    }
+  ],
+  "criteria": [
+    {
+      "name": "fileExtension",
+      "options": {
+        "matchOperator": "IS_ONE_OF",
+        "matchCaseSensitive": false,
+        "values": [
+          "js",
+          "css",
+          "svg"
+        ]
+      }
+    }
+  ],
+  "criteriaMustSatisfy": "all",
+  "comments": ""
+}

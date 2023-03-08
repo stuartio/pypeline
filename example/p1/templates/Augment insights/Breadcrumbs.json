@@ -1,0 +1,17 @@
+{
+  "name": "Breadcrumbs",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "breadcrumbs",
+      "options": {
+        "enabled": true,
+        "optMode": false,
+        "loggingEnabled": false
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": ""
+}

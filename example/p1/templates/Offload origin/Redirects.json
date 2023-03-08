@@ -1,0 +1,23 @@
+{
+  "name": "Redirects",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "cacheRedirect",
+      "options": {
+        "enabled": "false"
+      }
+    },
+    {
+      "name": "chaseRedirects",
+      "options": {
+        "enabled": true,
+        "limit": "4",
+        "serve404": true
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": "Configure caching for HTTP redirects. The redirect is cached for the same TTL as a 200 response when this feature is enabled\n"
+}

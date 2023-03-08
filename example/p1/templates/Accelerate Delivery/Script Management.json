@@ -1,0 +1,16 @@
+{
+  "name": "Script Management",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "scriptManagement",
+      "options": {
+        "enabled": true,
+        "serviceworker": "NO_SERVICE_WORKER"
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": ""
+}

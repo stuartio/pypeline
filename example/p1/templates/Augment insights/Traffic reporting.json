@@ -1,0 +1,25 @@
+{
+  "name": "Traffic reporting",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "cpCode",
+      "options": {
+        "value": {
+          "id": 813436,
+          "description": "smacleod-cp1",
+          "products": [
+            "Site_Accel",
+            "Fresca"
+          ],
+          "createdDate": 1548068489000.0,
+          "cpCodeLimits": null,
+          "name": "smacleod-cp1"
+        }
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": "Identify your main traffic segments so you can zoom in your traffic statistics like hits, bandwidth, offload, response codes, and errors.\n"
+}

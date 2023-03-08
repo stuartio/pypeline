@@ -1,0 +1,52 @@
+{
+  "name": "default",
+  "children": [
+    "#include:Augment insights.json",
+    "#include:Accelerate Delivery.json",
+    "#include:Offload origin.json",
+    "#include:Strengthen security.json",
+    "#include:Increase availability.json",
+    "#include:Minimize payload.json"
+  ],
+  "behaviors": [
+    {
+      "name": "origin",
+      "options": {
+        "originType": "CUSTOMER",
+        "hostname": "origin.stuartmacleod.net",
+        "forwardHostHeader": "ORIGIN_HOSTNAME",
+        "cacheKeyHostname": "REQUEST_HOST_HEADER",
+        "compress": true,
+        "enableTrueClientIp": true,
+        "originCertificate": "",
+        "verificationMode": "PLATFORM_SETTINGS",
+        "ports": "",
+        "httpPort": 80,
+        "httpsPort": 443,
+        "trueClientIpHeader": "True-Client-IP",
+        "trueClientIpClientSetting": false,
+        "originSni": true
+      }
+    },
+    {
+      "name": "autoDomainValidation",
+      "options": {
+        "autodv": ""
+      }
+    },
+    {
+      "name": "enhancedProxyDetection",
+      "options": {
+        "enabled": true,
+        "forwardHeaderEnrichment": false,
+        "enableConfigurationMode": "BEST_PRACTICE",
+        "bestPracticeAction": "ALLOW"
+      }
+    }
+  ],
+  "options": {
+    "is_secure": false
+  },
+  "variables": "#include:pmVariables.json",
+  "comments": "The Default Rule template contains all the necessary and recommended features. Rules are evaluated from top to bottom and the last matching rule wins."
+}

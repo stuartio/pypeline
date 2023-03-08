@@ -1,0 +1,15 @@
+{
+  "name": "Augment insights",
+  "children": [
+    "#include:Augment insights/Traffic reporting.json",
+    "#include:Augment insights/mPulse RUM.json",
+    "#include:Augment insights/Content Targeting.json",
+    "#include:Augment insights/Log delivery.json",
+    "#include:Augment insights/Global Request Number.json",
+    "#include:Augment insights/Breadcrumbs.json"
+  ],
+  "behaviors": [],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": "Control the settings related to monitoring and reporting. This gives you additional visibility into your traffic and audiences."
+}

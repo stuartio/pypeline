@@ -1,0 +1,25 @@
+{
+  "name": "HTTP/3",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "http3",
+      "options": {
+        "enable": true
+      }
+    }
+  ],
+  "criteria": [
+    {
+      "name": "hostname",
+      "options": {
+        "matchOperator": "IS_ONE_OF",
+        "values": [
+          "*"
+        ]
+      }
+    }
+  ],
+  "criteriaMustSatisfy": "all",
+  "comments": ""
+}

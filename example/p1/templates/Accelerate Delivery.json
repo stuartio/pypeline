@@ -1,0 +1,18 @@
+{
+  "name": "Accelerate Delivery",
+  "children": [
+    "#include:Accelerate Delivery/Origin connectivity.json",
+    "#include:Accelerate Delivery/Protocol Optimizations.json",
+    "#include:Accelerate Delivery/HTTP%2F3.json",
+    "#include:Accelerate Delivery/Prefetching.json",
+    "#include:Accelerate Delivery/mPulse.json",
+    "#include:Accelerate Delivery/SureRoute.json",
+    "#include:Accelerate Delivery/Adaptive Acceleration.json",
+    "#include:Accelerate Delivery/Resource Optimizer.json",
+    "#include:Accelerate Delivery/Script Management.json"
+  ],
+  "behaviors": [],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": "Control the settings related to improving the performance of delivering objects to your users."
+}

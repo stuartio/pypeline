@@ -1,0 +1,42 @@
+{
+  "name": "Adaptive Acceleration",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "adaptiveAcceleration",
+      "options": {
+        "source": "mPulse",
+        "enablePush": false,
+        "enablePreconnect": true,
+        "preloadEnable": true,
+        "abLogic": "DISABLED",
+        "enableRo": false,
+        "enableBrotliCompression": true,
+        "titleHttp2ServerPush": "",
+        "titlePreconnect": "",
+        "titlePreload": "",
+        "abTesting": "",
+        "compression": "",
+        "titleRo": "",
+        "titleBrotli": "",
+        "enableForNoncacheable": true
+      }
+    }
+  ],
+  "criteria": [
+    {
+      "name": "fileExtension",
+      "options": {
+        "matchOperator": "IS_NOT_ONE_OF",
+        "matchCaseSensitive": false,
+        "values": [
+          "js",
+          "css",
+          "svg"
+        ]
+      }
+    }
+  ],
+  "criteriaMustSatisfy": "all",
+  "comments": ""
+}

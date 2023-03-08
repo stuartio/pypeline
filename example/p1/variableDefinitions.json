@@ -1,0 +1,12 @@
+[
+    {
+        "name": "originHostname",
+        "jsonPath": "$.rules.behaviors[0].options.hostname",
+        "default": null
+    },
+    {
+        "name": "defaultCPCode",
+        "jsonPath": "$.rules.children[0].children[0].behaviors[0].options.value.id",
+        "default": null
+    }
+]

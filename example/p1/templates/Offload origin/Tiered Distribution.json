@@ -1,0 +1,16 @@
+{
+  "name": "Tiered Distribution",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "tieredDistribution",
+      "options": {
+        "enabled": true,
+        "tieredDistributionMap": "CH2"
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": ""
+}

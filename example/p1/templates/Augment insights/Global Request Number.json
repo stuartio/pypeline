@@ -1,0 +1,16 @@
+{
+  "name": "Global Request Number",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "globalRequestNumber",
+      "options": {
+        "outputOption": "RESPONSE_HEADER",
+        "headerName": "Akamai-GRN"
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": ""
+}

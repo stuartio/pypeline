@@ -1,0 +1,21 @@
+{
+  "name": "Strengthen security",
+  "children": [
+    "#include:Strengthen security/Allowed methods.json",
+    "#include:Strengthen security/Obfuscate debug info.json",
+    "#include:Strengthen security/Obfuscate backend info.json",
+    "#include:Strengthen security/HSTS.json"
+  ],
+  "behaviors": [
+    {
+      "name": "strictHeaderParsing",
+      "options": {
+        "validMode": true,
+        "strictMode": true
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": "Control the settings that minimize the information your website shares with clients and malicious entities to reduce your exposure to threats."
+}

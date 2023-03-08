@@ -1,0 +1,15 @@
+{
+  "name": "Content Targeting",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "edgeScape",
+      "options": {
+        "enabled": true
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": ""
+}

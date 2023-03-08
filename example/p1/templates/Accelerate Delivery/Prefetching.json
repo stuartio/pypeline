@@ -1,0 +1,11 @@
+{
+  "name": "Prefetching",
+  "children": [
+    "#include:Prefetching/Prefetching objects.json",
+    "#include:Prefetching/Prefetchable objects.json"
+  ],
+  "behaviors": [],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": ""
+}
