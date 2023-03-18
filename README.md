@@ -2,11 +2,146 @@
 
 Python-based implementation of pipeline logic to manage properties. The following operations are supported:
 
-- Import - Will download a property, break it down into multiple JSON files (one per rule) and save to the /template directory under your pipeline folder
-- Update - Will merge variables from the shared variableDefinitions.json and values from an environment's variables.json files and superimpose them over the contents of the templates directory. This is then pushed to PAPI to update the property of that environment
-- Merge - Will perform similarly to Update, but will not push to PAPI. Instead a file is written to the dist folder under your pipeline folder
-- Activate - Will activate a given environment on either Staging or Production
+```shell
+Usage: pypeline.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -e, --edgerc TEXT       Edgerc settings file
+  -s, --section TEXT      Section in Edgerc file
+  -a, --account-key TEXT  Account Switch Key
+  --folder PATH           Pipeline folder
+  --help                  Show this message and exit.
+
+Commands:
+  activate         Activate an environment on Staging or Production
+  add-environment  Add an environment to your pipeline
+  add-variable     Add a variable to your pipeline's variableDefinitions
+  create           Create a new pipeline
+  import           Retrieve rules from PAPI and break them down into...
+  merge            Collate templates and apply variables, then output...
+  set-ruleformat   Set rule format for this pipeline
+  status           Show status of properties in each environment
+  update           Merge templates and variables & push to PAPI
+```
+
+### Dependencies
+
+This script has been tested with Python 3.8 and 3.11. It may work with lower versions but this is entirely untested. Also, your Python environment must contain the pips listed in `requirements.txt`. To install all of them in a single command run
+
+```
+python -m pip install -r requirements.txt
+```
+
+### Getting help
+
+You can get the information above by simply running the `pypeline` script with no parameters, or by adding `--help` to your command. Take note of the `--folder` parameter, as this is used in all commands except `create`. Should it be omitted then the local folder will be used (a value of `.`).
+
+Each individual command has its own help output, which will show you which options are supported and whether each one is required or optional. For example, you can find the available options on the `update` command by running
+
+```shell
+python pypeline.py update --help
+```
+
+```
+Usage: pypeline.py update [OPTIONS]
+
+  Merge templates and variables & push to PAPI
+
+Options:
+  --environment TEXT  Environment to update  [required]
+  --notes TEXT        Version notes to be added
+  --help              Show this message and exit.
+```
+
+> Note: global options, such as `--folder` must be provided _before_ the command, e.g. `python pypeline.py --folder mypipeline update --environment dev`
 
 ### Variable Setup
 
-In order to make it easier for you to sync UI changes down, you no longer need to replace values within the templates folder. Instead each variable is defined with a JSONPath to where it would be located in the combined rule tree. If you move behaviours you will need to update these paths, and there is currently no automated way to infer paths.
+Variables can be configured in one of two ways. If you create a variable without the --JSONPaths parameter then it is considered a 'value variable'. In these cases pypeline will locate all instances of `${env.<variable name>}` throughout your rule tree and replace them with the value you have specified per environment.
+
+Alternatively, you can specify the location(s) in JSON Path format of where you would like to replace your variable. For example, if you wanted to replace the default origin hostname you could specify a JSON Path of `$.rules.behaviors[0].options.hostname`. The benefit of this approach is that you do not need to touch your templates, and as such re-importing them would not require you to update your local copy.
+
+### Examples
+
+1. Create a new pipeline in the local directory called `mypipeline`
+
+```shell
+python pypeline.py create --name mypipeline
+```
+
+2. Import the latest version of an existing property to your pipeline as its templates
+
+```shell
+python pypeline.py --folder mypipeline import --property www.example.com
+```
+
+3. Import a specific version of an existing property to your pipeline as its templates
+
+```shell
+python pypeline.py --folder mypipeline import --property www.example.com --version 10
+```
+
+4. Add an environment to your pipeline
+
+```shell
+python pypeline.py --folder mypipeline add-environment --name dev --property dev.example.com
+```
+
+5. Add a value variable to your pipeline
+
+```shell
+python pypeline.py --folder mypipeline add-variable --name default_origin
+```
+
+6. Add a value variable with a default value to your pipeline
+
+```shell
+python pypeline.py --folder mypipeline add-variable --name default_origin --default origin.example.com
+```
+
+6. Add a positional variable to your pipeline
+
+```shell
+python pypeline.py --folder mypipeline add-variable --name default_origin --JSONPaths $.rules.behaviors[0].options.hostname
+```
+
+6. Add a positional variable with multiple locations to your pipeline
+
+```shell
+python pypeline.py --folder mypipeline add-variable --name default_origin --JSONPaths $.rules.behaviors[0].options.hostname,$.rules.children[3].behaviors[0].options.hostname
+```
+
+7. Push updates to a given environment in your pipeline, creating a new version if required
+
+```shell
+python pypeline.py --folder mypipeline update --environment dev --notes 'commit:12345'
+```
+
+8. Activate an environment in your pipeline to staging
+
+```shell
+python pypeline.py --folder mypipeline activate --environment dev --network Staging
+```
+
+9. Update the rule format in use in your property, and re-import template rules in that format
+
+```shell
+python pypeline.py --folder mypipeline set-ruleformat --ruleFormat v2023-01-05
+python pypeline.py --folder mypipeline import --property www.example.com --ruleFormat v2023-01-05
+```
+
+10. Display the status of all environments in your pipeline
+
+```shell
+python pypeline.py --folder mypipeline status
+```
+
+11. Display the status of a single environment in your pipeline
+
+```shell
+python pypeline.py --folder mypipeline status --environment dev 
+```
+
+### Manual updates
+
+While commands such as `add-environment` and `add-variable` are included in the tool there is nothing preventing users from manually editing `pipeline.json`, `variableDefinitions.json` or any other file contained in the pipeline folder. Manual changes should cause no issues, so long as they retain the schema of the automatically created files.

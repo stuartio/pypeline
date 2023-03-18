@@ -6,13 +6,13 @@
       "name": "cpCode",
       "options": {
         "value": {
-          "id": 813436,
+          "id": 814598,
           "description": "smacleod-cp1",
           "products": [
-            "Site_Accel",
-            "Fresca"
+            "Fresca",
+            "Site_Accel"
           ],
-          "createdDate": 1548068489000.0,
+          "createdDate": 1548068489000,
           "cpCodeLimits": null,
           "name": "smacleod-cp1"
         }

@@ -1,0 +1,18 @@
+[
+  {
+    "name": "positional_origin",
+    "default": null,
+    "jsonPaths": [
+      "$.rules.behaviors[0].options.hostname",
+      "$.rules.children[3].behaviors[0].options.hostname"
+    ]
+  },
+  {
+    "name": "value_origin",
+    "default": "origin.example.com"
+  },
+  {
+    "name": "cp_code",
+    "default": 123456
+  }
+]

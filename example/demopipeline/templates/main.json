@@ -6,7 +6,9 @@
     "#include:Offload origin.json",
     "#include:Strengthen security.json",
     "#include:Increase availability.json",
-    "#include:Minimize payload.json"
+    "#include:Minimize payload.json",
+    "#include:Category.json",
+    "#include:Custom Category Response.json"
   ],
   "behaviors": [
     {
@@ -25,7 +27,8 @@
         "httpsPort": 443,
         "trueClientIpHeader": "True-Client-IP",
         "trueClientIpClientSetting": false,
-        "originSni": true
+        "originSni": true,
+        "ipVersion": "IPV4"
       }
     },
     {
@@ -42,8 +45,25 @@
         "enableConfigurationMode": "BEST_PRACTICE",
         "bestPracticeAction": "ALLOW"
       }
+    },
+    {
+      "name": "cpCode",
+      "options": {
+        "value": {
+          "id": 814598,
+          "description": "smacleod-cp1",
+          "products": [
+            "Fresca",
+            "Site_Accel"
+          ],
+          "createdDate": 1548068489000,
+          "cpCodeLimits": null,
+          "name": "smacleod-cp1"
+        }
+      }
     }
   ],
+  "uuid": "default",
   "options": {
     "is_secure": false
   },

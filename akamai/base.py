@@ -47,8 +47,6 @@ class Akamai:
         self.accountSwitchKey = accountSwitchKey
         self.credentials = None
 
-        self.session = requests.Session()
-
         ## Check for creds in EdgeRC, if supplied
         if edgerc is not None:
             self.credentials = get_credentials_from_edgerc(self.edgerc, self.section)
@@ -64,18 +62,6 @@ class Akamai:
         ## If no luck from all options, panic.
         if self.credentials is None:
             raise(Exception('Failed to find Akamai credentials from EdgeRC or Environment Variables'))
-        
-        self.baseurl = 'https://' + self.credentials['host']
-        self.session.auth = EdgeGridAuth(
-            client_token = self.credentials['client_token'],
-            client_secret = self.credentials['client_secret'],
-            access_token = self.credentials['access_token']
-        )
-        
-        self.headers = {
-            'content-type': 'application/json',
-            'PAPI-Use-Prefixes': 'false'
-        }
 
     def getEdgeRCLocation(self):
         return self.edgerc
@@ -99,6 +85,17 @@ class Akamai:
          return self.accountSwitchKey
 
     def do(self, method, path, query, headers, body = None):
+        self.baseurl = 'https://' + self.credentials['host']
+        
+        self.headers = {
+            'PAPI-Use-Prefixes': 'false',
+            'accept': 'application/json',
+            'connection': 'close'
+        }
+
+        if body is not None:
+            self.headers['content-type'] = 'application/json'
+
         # Append accountSwitchKey query param
         if self.accountSwitchKey is not None:
             if query is not None:
@@ -123,27 +120,36 @@ class Akamai:
         if not isinstance(body, str):
             body = json.dumps(body)
 
-        try:
-            if method == 'GET':
-                result = self.session.get(request_url, headers = self.headers, data = body)
-            elif method == 'POST':
-                result = self.session.post(request_url, headers = self.headers, data = body)
-            elif method == 'PUT':
-                result = self.session.put(request_url, headers = self.headers, data = body)
-        except requests.exceptions.RequestException as err:
-            print (err)
-        
-        # 4xx/5xx errors do not always throw, so manually do so
-        if result.status_code >= 400:
-            raise ValueError(str(result.status_code) + ' response: ' + result.text)
-        else:
-            return json.loads(result.content)
+        ## Property handle keep-alives and other open sessions
+        with requests.Session() as session:
+            session.auth = EdgeGridAuth(
+                client_token = self.credentials['client_token'],
+                client_secret = self.credentials['client_secret'],
+                access_token = self.credentials['access_token']
+            )
 
-    def get(self, path, query, headers):
+            try:
+                if method == 'GET':
+                    result = session.get(request_url, headers = self.headers)
+                elif method == 'POST':
+                    result = session.post(request_url, headers = self.headers, data = body)
+                elif method == 'PUT':
+                    result = session.put(request_url, headers = self.headers, data = body)
+            except requests.exceptions.RequestException as err:
+                print (err)
+                return
+            
+            # 4xx/5xx errors do not always throw, so manually do so
+            if result is not None and result.status_code >= 400:
+                raise ValueError(str(result.status_code) + ' response: ' + result.text)
+            else:
+                return json.loads(result.content)
+
+    def get(self, path, query = None, headers = None):
         return self.do('GET', path, query, headers)
 
-    def post(self, path, query, headers, body):
+    def post(self, path, query = None, headers = None, body = None):
         return self.do('POST', path, query, headers, body)
 
-    def put(self, path, query, headers, body):
+    def put(self, path, query = None, headers = None, body = None):
         return self.do('PUT', path, query, headers, body)

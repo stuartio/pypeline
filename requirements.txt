@@ -1,0 +1,5 @@
+edgegrid-python
+requests
+jsonpath_ng
+click
+colorama

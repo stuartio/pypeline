@@ -1,0 +1,12 @@
+{
+  "name": "Category",
+  "children": [
+    "#include:Category/Edge.json",
+    "#include:Category/Parent.json"
+  ],
+  "behaviors": [],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "uuid": "22fb4ecc-efe5-47ef-8994-628ad41a7299",
+  "comments": ""
+}

@@ -1,0 +1,9 @@
+[
+  {
+    "cnameType": "EDGE_HOSTNAME",
+    "edgeHostnameId": "123456",
+    "cnameFrom": "dev.example.com",
+    "cnameTo": "dev.example.com.edgesuite.net",
+    "certProvisioningType": "CPS_MANAGED"
+  }
+]
