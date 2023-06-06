@@ -89,7 +89,10 @@ def merge_pipeline(folder, environment_name):
         else:
             ## Cast rules to string, replace globally and cast back to dict
             rules_str = json.dumps(rules)
-            rules_str = rules_str.replace('${env.%s}' %variable['name'], env_variable_value)
+            if isinstance(env_variable_value, int):
+                rules_str = rules_str.replace('"${env.%s}"' %variable['name'], str(env_variable_value))
+            else:
+                rules_str = rules_str.replace('${env.%s}' %variable['name'], env_variable_value)
             with open('temp.json', 'w') as f:
                 f.write(rules_str)
             rules = json.loads(rules_str)

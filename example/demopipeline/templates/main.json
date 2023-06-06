@@ -6,9 +6,7 @@
     "#include:Offload origin.json",
     "#include:Strengthen security.json",
     "#include:Increase availability.json",
-    "#include:Minimize payload.json",
-    "#include:Category.json",
-    "#include:Custom Category Response.json"
+    "#include:Minimize payload.json"
   ],
   "behaviors": [
     {
@@ -50,7 +48,7 @@
       "name": "cpCode",
       "options": {
         "value": {
-          "id": 814598,
+          "id": "${env.cp_code}",
           "description": "smacleod-cp1",
           "products": [
             "Fresca",
