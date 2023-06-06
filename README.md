@@ -120,7 +120,7 @@ python pypeline.py --folder mypipeline update --environment dev --notes 'commit:
 8. Activate an environment in your pipeline to staging
 
 ```shell
-python pypeline.py --folder mypipeline activate --environment dev --network Staging
+python pypeline.py --folder mypipeline activate --environment dev --network Staging --email noreply@example.com
 ```
 
 9. Update the rule format in use in your property, and re-import template rules in that format

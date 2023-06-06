@@ -5,7 +5,7 @@ import shutil
 import sys
 import re
 from datetime import datetime
-from akamai.property import Property
+from ak.property import Property
 from utilities import *
 
 def get_config(folder):
