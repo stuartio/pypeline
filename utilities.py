@@ -133,7 +133,6 @@ def get_credentials(edgerc_path, section, account_key):
 
     if account_key is not None:
         credentials['account_key'] = account_key
-    print(credentials)
     return credentials
 
 def apply_variable_by_jsonpath(rules, path, value):
