@@ -103,7 +103,7 @@ def merge_rules(main_file_path):
     return rules
 
 def get_credentials(edgerc_path, section, account_key):
-    credential_elements = ['host', 'client_token', 'access_token', 'client_secret']
+    credential_elements = ['host', 'client_token', 'access_token', 'client_secret', 'account_key']
     credentials = {}
     edgerc = None
     if edgerc_path is None:
@@ -133,7 +133,6 @@ def get_credentials(edgerc_path, section, account_key):
 
     if account_key is not None:
         credentials['account_key'] = account_key
-        
     return credentials
 
 def apply_variable_by_jsonpath(rules, path, value):

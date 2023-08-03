@@ -14,6 +14,8 @@ def get_credentials_from_edgerc(edgerc_path, section):
             'access_token':     edgerc.get(section, 'access_token'),
             'client_secret':    edgerc.get(section, 'client_secret')
         }
+        if edgerc.has_option(section, 'account_key'):
+            credentials['account_key'] = edgerc.get(section, 'account_key')
         return credentials
     else:
         return None
@@ -24,7 +26,7 @@ def get_credentials_from_environment(section):
     if section.lower() != 'default':
         prefix = section.upper() + '_'
     
-    credential_elements = ['host','client_token','access_token','client_secret']
+    credential_elements = ['host','client_token','access_token','client_secret', 'account_key']
     for element in credential_elements:
         env_var = 'AKAMAI_' + prefix + element
         if os.getenv(env_var) is not None:
@@ -44,7 +46,6 @@ class Akamai:
             self.section = section
         else:
             self.section = self.DEFAULT_SECTION
-        self.accountSwitchKey = accountSwitchKey
         self.credentials = None
 
         ## Check for creds in EdgeRC, if supplied
@@ -62,6 +63,8 @@ class Akamai:
         ## If no luck from all options, panic.
         if self.credentials is None:
             raise(Exception('Failed to find Akamai credentials from EdgeRC or Environment Variables'))
+
+        self.credentials['account_key'] = accountSwitchKey or self.credentials.get('account_key', None)
 
     def getEdgeRCLocation(self):
         return self.edgerc
@@ -82,7 +85,7 @@ class Akamai:
         return self.credentials['client_secret']
     
     def getAccountSwitchKey(self):
-         return self.accountSwitchKey
+         return self.credentials.get('account_key', None)
 
     def do(self, method, path, query, headers, body = None):
         self.baseurl = 'https://' + self.credentials['host']
@@ -97,13 +100,14 @@ class Akamai:
             self.headers['content-type'] = 'application/json'
 
         # Append accountSwitchKey query param
-        if self.accountSwitchKey is not None:
+        accountSwitchKey = self.getAccountSwitchKey()
+        if accountSwitchKey is not None:
             if query is not None:
                 if not query.startswith("?"):
                     query = "?" + query
-                query += "&accountSwitchKey=%s" % self.accountSwitchKey
+                query += "&accountSwitchKey=%s" % accountSwitchKey
             else:
-                query = "?accountSwitchKey=%s" % self.accountSwitchKey
+                query = "?accountSwitchKey=%s" % accountSwitchKey
 
         # Append query
         if query is not None:
