@@ -64,7 +64,7 @@ class Akamai:
         if self.credentials is None:
             raise(Exception('Failed to find Akamai credentials from EdgeRC or Environment Variables'))
 
-        self.credentials['account_key'] = self.credentials.get('account_key', accountSwitchKey)
+        self.credentials['account_key'] = accountSwitchKey or self.credentials.get('account_key', None)
 
     def getEdgeRCLocation(self):
         return self.edgerc
