@@ -69,6 +69,8 @@ Environment scoping can be achieved by editing your property templates (either i
 
 `pypeline_env:dev,prod;`
 
+Each rule will be checked for this tag, and will be removed if the tag exists but the current environment is not included in the comment, e.g. if a rule contains the comment above but the environment being evaluted is `staging` then the rule in question would be removed from the merged rule tree.
+
 The pypeline_env can contain any number of environments, and can exist in any position within the comment field. The trailing semi-colon is only required if further comments will follow, as it acts as a delimiter.
 
 > Note: Scoping is performed at the rule level, not the behavior level. If you wish to scope a single behavior move it into its own child rule
