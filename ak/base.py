@@ -27,7 +27,7 @@ def get_credentials_from_environment(section):
     if section.lower() != "default":
         prefix = section.upper() + "_"
 
-    credential_elements = ["host", "client_token", "access_token", "client_secret", "account_key"]
+    credential_elements = ["host", "client_token", "access_token", "client_secret"]
     for element in credential_elements:
         env_var = "AKAMAI_" + prefix + element.upper()
         if os.getenv(env_var) is not None:
@@ -72,9 +72,11 @@ class Akamai:
         if self.credentials is None:
             raise (Exception("Failed to find Akamai credentials from EdgeRC or Environment Variables"))
 
-        self.credentials["account_key"] = accountSwitchKey or self.credentials.get("account_key", None)
+        # Override ASK with supplied variable, if present
+        if accountSwitchKey:
+            self.credentials["account_key"] = accountSwitchKey
 
-    def getEdgeRCLocation(self):
+    def get_edgerc(self):
         return self.edgerc
 
     def get_section(self):
@@ -107,14 +109,15 @@ class Akamai:
             self.headers["content-type"] = "application/json"
 
         # Append accountSwitchKey query param
-        accountSwitchKey = self.getAccountSwitchKey()
-        if accountSwitchKey is not None:
+        if self.credentials["account_key"] is not None:
             if query is not None:
-                if not query.startswith("?"):
-                    query = "?" + query
-                query += "&accountSwitchKey=%s" % accountSwitchKey
+                query += "&accountSwitchKey=%s" % self.credentials["account_key"]
             else:
-                query = "?accountSwitchKey=%s" % accountSwitchKey
+                query = "?accountSwitchKey=%s" % self.credentials["account_key"]
+
+        # Remove errant ? at the start of query to avoid duplicates
+        if query is not None and query.startswith("?"):
+            query = query[1:]
 
         # Append query
         if query is not None:

@@ -31,7 +31,7 @@ class Property(Akamai):
         result = self.get(path=path)
         return result["properties"]["items"][0]
 
-    def getPropertyRules(self, propertyId, propertyVersion, ruleFormat=None, bananas=None):
+    def getPropertyRules(self, propertyId, propertyVersion, ruleFormat=None):
         path = "/papi/v1/properties/{propertyId}/versions/{propertyVersion}/rules".format(
             propertyId=propertyId, propertyVersion=propertyVersion
         )
