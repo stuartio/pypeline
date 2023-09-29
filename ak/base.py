@@ -6,7 +6,6 @@ import json
 
 
 def get_credentials_from_edgerc(edgerc_path, section):
-    print("Pulling creds from edgerc with path {}".format(edgerc_path))
     expanded_path = os.path.expanduser(edgerc_path)
     if os.path.exists(expanded_path):
         edgerc = EdgeRc(edgerc_path)
@@ -23,7 +22,6 @@ def get_credentials_from_edgerc(edgerc_path, section):
 
 
 def get_credentials_from_environment(section):
-    print("Pulling creds from env")
     credentials = {}
     prefix = ""
     if section.lower() != "default":

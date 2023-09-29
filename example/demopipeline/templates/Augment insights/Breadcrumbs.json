@@ -13,5 +13,5 @@
   ],
   "criteria": [],
   "criteriaMustSatisfy": "all",
-  "comments": ""
+  "comments": "This is another comment. pypeline_env:prod; This is a further comment"
 }

@@ -111,10 +111,35 @@ def merge_pipeline(folder, environment_name):
                 rules_str = rules_str.replace('"${env.%s}"' % variable["name"], str(env_variable_value))
             else:
                 rules_str = rules_str.replace("${env.%s}" % variable["name"], env_variable_value)
-            with open("temp.json", "w") as f:
-                f.write(rules_str)
             rules = json.loads(rules_str)
 
+    ## Remove out of scope rules
+    rules["rules"] = remove_out_of_scope_rules(rules["rules"], environment_name)
+
+    return rules
+
+
+def remove_out_of_scope_rules(rules, environment_name):
+    # Search rule comments for pypeline_env, and remove any rule referencing an env other than the current one
+    if "children" in rules.keys():
+        parsed_children = []
+        for child in rules["children"]:
+            scoped_environments_found = re.search("pypeline_env:([^;]+)", child["comments"])
+            # Parse comments. If environment name in pypeline_env include child in output
+            if scoped_environments_found is not None:
+                scoped_environments = scoped_environments_found.group(1).replace(" ", "")
+                scoped_environments = scoped_environments.split(",")
+                if environment_name in scoped_environments:
+                    parsed_children.append(child)
+            # If no pypeline_env comment, include child by default
+            else:
+                parsed_children.append(child)
+
+        # Recurse through child rules
+        for parsed_child in parsed_children:
+            parsed_child = remove_out_of_scope_rules(parsed_child, environment_name)
+        # Replace children with parsed
+        rules["children"] = parsed_children
     return rules
 
 

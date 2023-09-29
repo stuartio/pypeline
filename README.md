@@ -61,6 +61,18 @@ Variables can be configured in one of two ways. If you create a variable without
 
 Alternatively, you can specify the location(s) in JSON Path format of where you would like to replace your variable. For example, if you wanted to replace the default origin hostname you could specify a JSON Path of `$.rules.behaviors[0].options.hostname`. The benefit of this approach is that you do not need to touch your templates, and as such re-importing them would not require you to update your local copy.
 
+### Environment-specific rules
+
+Pypeline has the capability of only including a rule or rules in a given set of environments. This feature is often achieved by simply setting a PMUSER variable with the environment name, and scoping rules to match. However, there are various rules which cannot exist under match conditions (such as Siteshield), for which this feature should achieve the desired result. 
+
+Environment scoping can be achieved by editing your property templates (either in JSON or in the Property Manager UI) and adding a comment in the desired rule of the form
+
+`pypeline_env:dev,prod;`
+
+The pypeline_env can contain any number of environments, and can exist in any position within the comment field. The trailing semi-colon is only required if further comments will follow, as it acts as a delimiter.
+
+> Note: Scoping is performed at the rule level, not the behavior level. If you wish to scope a single behavior move it into its own child rule
+
 ### Examples
 
 1. Create a new pipeline in the local directory called `mypipeline`
