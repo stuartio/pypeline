@@ -22,9 +22,7 @@ class Property(Akamai):
         return result
 
     def listActivations(self, propertyId):
-        path = "/papi/v1/properties/{propertyId}/activations".format(
-            propertyId=propertyId
-        )
+        path = "/papi/v1/properties/{propertyId}/activations".format(propertyId=propertyId)
         result = self.get(path=path)
         return result["activations"]["items"]
 
@@ -33,19 +31,13 @@ class Property(Akamai):
         result = self.get(path=path)
         return result["properties"]["items"][0]
 
-    def getPropertyRules(self, propertyId, propertyVersion, ruleFormat=None):
-        path = (
-            "/papi/v1/properties/{propertyId}/versions/{propertyVersion}/rules".format(
-                propertyId=propertyId, propertyVersion=propertyVersion
-            )
+    def getPropertyRules(self, propertyId, propertyVersion, ruleFormat=None, bananas=None):
+        path = "/papi/v1/properties/{propertyId}/versions/{propertyVersion}/rules".format(
+            propertyId=propertyId, propertyVersion=propertyVersion
         )
         headers = {}
         if ruleFormat is not None:
-            headers[
-                "Accept"
-            ] = "application/vnd.akamai.papirules.{ruleFormat}+json".format(
-                ruleFormat=ruleFormat
-            )
+            headers["Accept"] = "application/vnd.akamai.papirules.{ruleFormat}+json".format(ruleFormat=ruleFormat)
         result = self.get(path=path, headers=headers)
         return result
 
@@ -67,27 +59,19 @@ class Property(Akamai):
         return result["versionLink"]
 
     def updateVersion(self, propertyId, propertyVersion, rules, ruleFormat):
-        path = (
-            "/papi/v1/properties/{propertyId}/versions/{propertyVersion}/rules".format(
-                propertyId=propertyId, propertyVersion=propertyVersion
-            )
+        path = "/papi/v1/properties/{propertyId}/versions/{propertyVersion}/rules".format(
+            propertyId=propertyId, propertyVersion=propertyVersion
         )
         headers = {}
         if ruleFormat is not None:
-            headers[
-                "Content-Type"
-            ] = "application/vnd.akamai.papirules.{ruleFormat}+json".format(
+            headers["Content-Type"] = "application/vnd.akamai.papirules.{ruleFormat}+json".format(
                 ruleFormat=ruleFormat
             )
         result = self.put(path=path, headers=headers, body=rules)
         return result
 
-    def activate(
-        self, propertyId, propertyVersion, network, emailaddresses, notes=None
-    ):
-        path = "/papi/v1/properties/{propertyId}/activations".format(
-            propertyId=propertyId
-        )
+    def activate(self, propertyId, propertyVersion, network, emailaddresses, notes=None):
+        path = "/papi/v1/properties/{propertyId}/activations".format(propertyId=propertyId)
         body = {
             "acknowledgeAllWarnings": True,
             "activationType": "ACTIVATE",
