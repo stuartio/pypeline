@@ -107,7 +107,9 @@ def merge_pipeline(folder, environment_name):
         else:
             ## Cast rules to string, replace globally and cast back to dict
             rules_str = json.dumps(rules)
-            if isinstance(env_variable_value, int):
+            if isinstance(env_variable_value, bool):
+                rules_str = rules_str.replace('"${env.%s}"' % variable["name"], json.dumps(env_variable_value))
+            elif isinstance(env_variable_value, int):
                 rules_str = rules_str.replace('"${env.%s}"' % variable["name"], str(env_variable_value))
             else:
                 rules_str = rules_str.replace("${env.%s}" % variable["name"], env_variable_value)
@@ -124,14 +126,18 @@ def remove_out_of_scope_rules(rules, environment_name):
     if "children" in rules.keys():
         parsed_children = []
         for child in rules["children"]:
-            scoped_environments_found = re.search("pypeline_env:([^;]+)", child["comments"])
-            # Parse comments. If environment name in pypeline_env include child in output
-            if scoped_environments_found is not None:
-                scoped_environments = scoped_environments_found.group(1).replace(" ", "")
-                scoped_environments = scoped_environments.split(",")
-                if environment_name in scoped_environments:
+            if "comments" in child.keys():
+                scoped_environments_found = re.search("pypeline_env:([^;]+)", child["comments"])
+                # Parse comments. If environment name in pypeline_env include child in output
+                if scoped_environments_found is not None:
+                    scoped_environments = scoped_environments_found.group(1).replace(" ", "")
+                    scoped_environments = scoped_environments.split(",")
+                    if environment_name in scoped_environments:
+                        parsed_children.append(child)
+                # If no pypeline_env comment, include child by default
+                else:
                     parsed_children.append(child)
-            # If no pypeline_env comment, include child by default
+            # If no comments at all, include child by default
             else:
                 parsed_children.append(child)
 
