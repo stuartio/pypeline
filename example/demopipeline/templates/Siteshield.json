@@ -1,0 +1,21 @@
+{
+  "name": "Siteshield",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "siteShield",
+      "options": {
+        "ssmap": {
+          "name": "Example Map",
+          "value": "s1234.akamaiedge.net",
+          "srmap": "Example-e1234.akasrg.akamai.com",
+          "hasMixedHosts": false,
+          "src": "PREVIOUS_MAP"
+        }
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": "pypeline_env:prod"
+}

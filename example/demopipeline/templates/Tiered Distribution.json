@@ -1,0 +1,15 @@
+{
+  "name": "Tiered Distribution",
+  "children": [],
+  "behaviors": [
+    {
+      "name": "tieredDistribution",
+      "options": {
+        "enabled": "${env.td_enabled}"
+      }
+    }
+  ],
+  "criteria": [],
+  "criteriaMustSatisfy": "all",
+  "comments": ""
+}

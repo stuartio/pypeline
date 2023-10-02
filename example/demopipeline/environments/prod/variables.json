@@ -1,5 +1,6 @@
 {
   "positional_origin": null,
   "value_origin": "origin.example.com",
-  "cp_code": 123456
+  "cp_code": 123456,
+  "tiereddistribution_enabled": true
 }

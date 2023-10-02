@@ -57,7 +57,7 @@ Options:
 
 ### Variable Setup
 
-Variables can be configured in one of two ways. If you create a variable without the --JSONPaths parameter then it is considered a 'value variable'. In these cases pypeline will locate all instances of `${env.<variable name>}` throughout your rule tree and replace them with the value you have specified per environment.
+Variables can be configured in one of two ways. If you create a variable without the --JSONPaths parameter then it is considered a 'value variable'. In these cases pypeline will locate all instances of `${env.<variable name>}` throughout your rule tree and replace them with the value you have specified per environment. Value variables can be either string, integer or boolean, though you cannot create a boolean variable from the command line and must edit the variableDefinitions.json file manually to achieve this. Boolean variables can be used to enable or disable behaviours that you do not wish to be removed from one environment or another.
 
 Alternatively, you can specify the location(s) in JSON Path format of where you would like to replace your variable. For example, if you wanted to replace the default origin hostname you could specify a JSON Path of `$.rules.behaviors[0].options.hostname`. The benefit of this approach is that you do not need to touch your templates, and as such re-importing them would not require you to update your local copy.
 
@@ -74,6 +74,8 @@ Each rule will be checked for this tag, and will be removed if the tag exists bu
 The pypeline_env can contain any number of environments, and can exist in any position within the comment field. The trailing semi-colon is only required if further comments will follow, as it acts as a delimiter.
 
 > Note: Scoping is performed at the rule level, not the behavior level. If you wish to scope a single behavior move it into its own child rule
+
+Have a look at the Siteshield.json file in the example/demopipeline/templates directory for an example of this in action.
 
 ### Examples
 

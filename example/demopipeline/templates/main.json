@@ -1,6 +1,8 @@
 {
   "name": "default",
   "children": [
+    "#include:Siteshield.json",
+    "#include:Tiered Distribution.json",
     "#include:Augment insights.json",
     "#include:Accelerate Delivery.json",
     "#include:Offload origin.json",
