@@ -227,7 +227,7 @@ def update(ctx, environment_name, notes):
 
     ## Get Property Status
     property = get_property(environment["propertyName"])
-    VERSIONLINK_MATCH = ".*/versions/([\d]+)"
+    VERSIONLINK_MATCH = ".*/versions/([\\d]+)"
 
     ## Don't need to create new version so just go for it
     if property["productionStatus"] == "INACTIVE" and property["stagingStatus"] == "INACTIVE":
