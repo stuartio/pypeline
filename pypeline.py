@@ -6,7 +6,10 @@ import sys
 import re
 from datetime import datetime
 from ak.property import Property
-from utilities import *
+
+global LOG_LEVEL
+
+import utilities
 
 
 def get_config(folder):
@@ -17,9 +20,7 @@ def get_config(folder):
             return json.load(f)
     else:
         click.secho(
-            'pipeline.json does not exist at "{f}". Please confirm location or use --name parameter to specify another folder'.format(
-                f=folder
-            ),
+            f"pipeline.json does not exist at '{folder}'. Please confirm location or use --name parameter to specify another folder",
             fg="red",
         )
         sys.exit(1)
@@ -31,9 +32,7 @@ def get_variable_definitions(folder):
         with open(variable_definitions_file, "r") as f:
             VARIABLE_DEFINITIONS = json.load(f)
     else:
-        click.secho(
-            "Variable definitions not found at: {v} . Cannot proceed".format(v=variable_definitions_file), fg="red"
-        )
+        click.secho(f"Variable definitions not found at: {variable_definitions_file} . Cannot proceed", fg="red")
         sys.exit(1)
 
     return VARIABLE_DEFINITIONS
@@ -43,7 +42,7 @@ def get_environment(environment_name, CONFIG):
     environment = [e for e in CONFIG["environments"] if e["name"] == environment_name]
     if len(environment) == 0:
         click.secho(
-            'Environment "{e}" not found in pipeline config. Please check and try again'.format(e=environment_name),
+            f"Environment '{environment_name}' not found in pipeline config. Please check and try again",
             fg="red",
         )
         sys.exit(1)
@@ -56,7 +55,7 @@ def get_environment(environment_name, CONFIG):
 def get_property(property_name):
     property_instances = PROPERTY_CLIENT.findProperty(property_name)
     if len(property_instances) == 0:
-        click.secho("Failed to find property: {p} . Can't proceed, sorry".format(p=property_name), fg="red")
+        click.secho(f"Failed to find property: '{property_name}' . Can't proceed, sorry", fg="red")
         sys.exit(1)
     property_instances = sorted(property_instances, key=lambda p: int(p["propertyVersion"]), reverse=True)
     return property_instances[0]
@@ -69,7 +68,7 @@ def get_hostnames(folder, environment_name):
         with open(hostnames_file, "r") as f:
             HOSTNAMES = json.load(f)
     else:
-        click.secho("Hostnames variables file not found at: {e} . Cannot proceed".format(e=hostnames_file), fg="red")
+        click.secho(f"Hostnames variables file not found at: {hostnames_file} . Cannot proceed", fg="red")
         sys.exit(1)
 
     return HOSTNAMES
@@ -85,14 +84,12 @@ def merge_pipeline(folder, environment_name):
         with open(env_variables_file, "r") as f:
             ENV_VARIABLES = json.load(f)
     else:
-        click.secho(
-            "Environment variables file not found at: {e} . Cannot proceed".format(e=env_variables_file), fg="red"
-        )
+        click.secho(f"Environment variables file not found at: {env_variables_file} . Cannot proceed", fg="red")
         sys.exit(1)
 
     ## Load templates to dict
     main_file = folder + "/templates/main.json"
-    rules = merge_rules(main_file)
+    rules = utilities.merge_rules(main_file)
 
     ## Interpolate variables
     for variable in VARIABLE_DEFINITIONS:
@@ -103,7 +100,7 @@ def merge_pipeline(folder, environment_name):
 
         if "jsonPaths" in variable.keys():
             for path in variable["jsonPaths"]:
-                apply_variable_by_jsonpath(rules, path, env_variable_value)
+                utilities.apply_variable_by_jsonpath(rules, path, env_variable_value)
         else:
             ## Cast rules to string, replace globally and cast back to dict
             rules_str = json.dumps(rules)
@@ -154,10 +151,15 @@ def remove_out_of_scope_rules(rules, environment_name):
 @click.option("--section", "-s", "section", default="default", help="Section in Edgerc file")
 @click.option("--account-key", "-a", "account_key", default=None, help="Account Switch Key")
 @click.option("--folder", "folder", type=click.Path(exists=True, dir_okay=True), default=".", help="Pipeline folder")
-def cli(edgerc_path, section, account_key, folder):
+@click.option("--debug", "-d", "debug_mode", is_flag=True, help="Add additional debug logging")
+def cli(edgerc_path, section, account_key, folder, debug_mode):
     ## Set up clients
     global PROPERTY_CLIENT
+    global LOG_LEVEL
     PROPERTY_CLIENT = Property(edgerc_path, section, account_key)
+    LOG_LEVEL = "info"
+    if debug_mode:
+        LOG_LEVEL = "debug"
 
 
 @cli.command("import")
@@ -172,8 +174,16 @@ def cli(edgerc_path, section, account_key, folder):
     default="latest",
     help="Rule format with which to pull down property rules. Defaults to 'latest'",
 )
+@click.option(
+    "--useFullPaths",
+    "use_full_paths",
+    is_flag=True,
+    required=False,
+    default=False,
+    help="By default, #include paths will be relative to the file which includes them. This option forces the path to be based on the default rule file instead.",
+)
 @click.pass_context
-def import_property(ctx, import_property, import_property_version, rule_format):
+def import_property(ctx, import_property, import_property_version, rule_format, use_full_paths):
     """
     Retrieve rules from PAPI and break them down into templates
     """
@@ -182,7 +192,7 @@ def import_property(ctx, import_property, import_property_version, rule_format):
 
     ## Check property exists
     if property is None:
-        raise (Exception("Property {p} not found".format(p=import_property)))
+        raise (Exception(f"Property '{import_property}' not found"))
 
     ## Set latest version if version omitted
     if import_property_version is None:
@@ -200,9 +210,9 @@ def import_property(ctx, import_property, import_property_version, rule_format):
     os.mkdir(dest_folder)
 
     ## Split rules into templates folder
-    split_rules(rules, dest_folder)
+    utilities.split_rules(rules, dest_folder, use_full_paths)
 
-    click.echo("Property '{p}' imported to {d}".format(p=import_property, d=dest_folder))
+    click.echo(f"Property '{import_property}' imported to {dest_folder}")
 
 
 @cli.command("update")
@@ -227,13 +237,14 @@ def update(ctx, environment_name, notes):
 
     ## Get Property Status
     property = get_property(environment["propertyName"])
+    property_name = property["propertyName"]
     VERSIONLINK_MATCH = ".*/versions/([\\d]+)"
 
     ## Don't need to create new version so just go for it
     if property["productionStatus"] == "INACTIVE" and property["stagingStatus"] == "INACTIVE":
         update_version = property["propertyVersion"]
     else:
-        click.secho("Creating new version of property {p}".format(p=property["propertyName"]), fg="yellow")
+        click.secho(f"Creating new version of property {property_name}", fg="yellow")
         new_version_result = PROPERTY_CLIENT.newPropertyVersion(property["propertyId"], property["propertyVersion"])
         version_matches = re.match(VERSIONLINK_MATCH, new_version_result)
         update_version = version_matches.group(1)
@@ -241,13 +252,14 @@ def update(ctx, environment_name, notes):
     ## Set Version Notes
     now = datetime.now()
     if notes is None:
-        rules["comments"] = "Pypeline update: {time}".format(time=now.strftime("%m/%d/%Y, %H:%M:%S"))
+        time = now.strftime("%m/%d/%Y, %H:%M:%S")
+        rules["comments"] = f"Pypeline update: {time}"
     else:
         rules["comments"] = notes
 
     ## Send updated config to PAPI
     click.secho(
-        "Pushing updates to version {v} of property {p}".format(v=update_version, p=property["propertyName"]),
+        f"Pushing updates to version {update_version} of property {property_name}",
         fg="yellow",
     )
     try:
@@ -255,18 +267,18 @@ def update(ctx, environment_name, notes):
             property["propertyId"], update_version, rules, CONFIG["ruleFormat"]
         )
     except:
-        click.echo("Failed to update rules for property {p}. Bailing out...".format(p=property["propertyName"]))
+        click.echo(f"Failed to update rules for property {property_name}. Bailing out...")
         click.echo(str(hostnames_update_result))
         sys.exit(1)
 
     click.secho(
-        "Setting hostnames for version {v} of property {p}".format(v=update_version, p=property["propertyName"]),
+        f"Setting hostnames for version {update_version} of property {property_name}",
         fg="yellow",
     )
     try:
         hostnames_update_result = PROPERTY_CLIENT.setHostnames(property["propertyId"], update_version, hostnames)
     except:
-        click.echo("Failed to update hostnames for property {p}. Bailing out...".format(p=property["propertyName"]))
+        click.echo(f"Failed to update hostnames for property {property_name}. Bailing out...")
         click.echo(str(hostnames_update_result))
         sys.exit(1)
 
@@ -291,7 +303,7 @@ def merge(ctx, environment_name):
     dist_file = dist_folder + "/" + environment_name + ".json"
     with open(dist_file, "w") as f:
         json.dump(rules, f, indent=2)
-    click.echo("Wrote updated rules to: {f}".format(f=dist_file))
+    click.echo(f"Wrote updated rules to: {dist_file}")
     click.secho("Merge complete", fg="green")
 
 
@@ -318,20 +330,19 @@ def activate(ctx, environment_name, network, email):
 
     ## Get Property Status
     property = get_property(environment["propertyName"])
+    property_id = property["propertyId"]
+    property_name = property["propertyName"]
+    property_version = property["propertyVersion"]
 
     if network.lower() == "staging" and property["stagingStatus"] != "INACTIVE":
         click.secho(
-            "Version {v} of property {p} is already active on Staging. Nothing to do".format(
-                p=property["propertyName"], v=property["propertyVersion"]
-            ),
+            f"Version {property_version} of property {property_name} is already active on Staging. Nothing to do",
             fg="red",
         )
         sys.exit(1)
     elif network.lower() == "production" and property["productionStatus"] != "INACTIVE":
         click.secho(
-            "Version {v} of property {p} is already active on Production. Nothing to do".format(
-                p=property["propertyName"], v=property["propertyVersion"]
-            ),
+            f"Version {property_version} of property {property_name} is already active on Production. Nothing to do",
             fg="red",
         )
         sys.exit(1)
@@ -339,21 +350,19 @@ def activate(ctx, environment_name, network, email):
     activations = PROPERTY_CLIENT.listActivations(property["propertyId"])
     pending_activations = [a for a in activations if a["status"] == "PENDING"]
     if len(pending_activations) > 0:
+        pending_version = pending_activations[0]["propertyVersion"]
+        pending_name = pending_activations[0]["propertyName"]
         click.echo(
-            "There is a pending activation of version {v} of property {p}. Please wait until this is complete then update and try again".format(
-                v=pending_activations[0]["propertyVersion"], p=pending_activations[0]["propertyName"], n=network
-            )
+            f"There is a pending activation of version {pending_version} of property {pending_name}. Please wait until this is complete then update and try again"
         )
         sys.exit(1)
 
     ## Activate to chosen network
     try:
-        activate_result = PROPERTY_CLIENT.activate(property["propertyId"], property["propertyVersion"], network, email)
+        activate_result = PROPERTY_CLIENT.activate(property_id, property_version, network, email)
     except:
         click.echo(
-            "Failed to activate version {v} of property {p} to {n}. Bailing out...".format(
-                v=property["propertyVersion"], p=property["propertyName"], n=network
-            )
+            f"Failed to activate version {property_version} of property {property_name} to {network}. Bailing out..."
         )
         sys.exit(1)
 
@@ -373,7 +382,7 @@ def create(ctx, name, rule_format):
     ## Check and create pipeline folder
     if os.path.exists(pipeline_folder):
         click.secho(
-            'Folder "{f}" already exists. Please delete this folder or choose another'.format(f=pipeline_folder),
+            f"Folder '{pipeline_folder}' already exists. Please delete this folder or choose another",
             fg="red",
         )
         sys.exit(1)
@@ -417,7 +426,7 @@ def add_environment(ctx, name, property_name):
     ## Check environment doesn't already exist
     existing_environment = [e for e in CONFIG["environments"] if e["name"] == name]
     if len(existing_environment) > 0:
-        click.secho("ERROR: Environment {e} already exists".format(e=name), fg="red")
+        click.secho(f"ERROR: Environment '{name}' already exists", fg="red")
         sys.exit(1)
 
     ## Find property and get hostnames before doing anything else, in case it breaks
@@ -451,7 +460,7 @@ def add_environment(ctx, name, property_name):
     with open(hostnames_file, "w") as f:
         json.dump(hostnames, f, indent=2)
 
-    click.secho('Added environment "{e}" to pipeline'.format(e=name))
+    click.secho(f"Added environment '{name}' to pipeline")
 
 
 @cli.command("add-variable")
@@ -475,7 +484,7 @@ def add_variable(ctx, variable_name, variable_paths, variable_default):
     variable_definitions = get_variable_definitions(pipeline_folder)
     existing_variable = [v for v in variable_definitions if v["name"] == variable_name]
     if len(existing_variable) > 0:
-        click.secho('Variable "{v}" already exists in variableDefinitions.json'.format(v=variable_name), fg="red")
+        click.secho(f"Variable '{variable_name}' already exists in variableDefinitions.json", fg="red")
         sys.exit(1)
 
     ## Cast likely integer variables to int

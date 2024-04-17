@@ -77,6 +77,10 @@ The pypeline_env can contain any number of environments, and can exist in any po
 
 Have a look at the Siteshield.json file in the example/demopipeline/templates directory for an example of this in action.
 
+### Cross-Compatibility
+
+By default, when you import rules to json snippets, the path for a given #include is relative to the file in which it appears, i.e. if `rule1/rule2.json` is referencing a file called `rule3.json` the statement will be `#include:rule3.json`. However, JSON snippets are often used in the Akamai Terraform provider, which expects #include paths to be relative to the main.json, rather than the file where they are created. In our example this would be `#include:rule1/rule3.json`. Pypeline can read files in both modes, but if you wish to use this format during the `import` command you need to include teh --useFullPaths option.
+
 ### Examples
 
 1. Create a new pipeline in the local directory called `mypipeline`
@@ -89,6 +93,12 @@ python pypeline.py create --name mypipeline
 
 ```shell
 python pypeline.py --folder mypipeline import --property www.example.com
+```
+
+2a. Import the latest version of an existing property to your pipeline as its templates, but use include paths relative to the main json file.
+
+```shell
+python pypeline.py --folder mypipeline import --property www.example.com --useFUllPaths
 ```
 
 3. Import a specific version of an existing property to your pipeline as its templates

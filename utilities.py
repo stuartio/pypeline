@@ -19,10 +19,9 @@ def sanitizeFileName(unsafe_filename):
     return safe_filename
 
 
-def split_child_rule(rule, directory):
-    # print('Parsing rule: ' + rule['name'])
+def split_child_rule(rule, directory, use_full_paths, parent_path):
     if not os.path.exists(directory):
-        # print('Making directory: ' + directory)
+        # report("split_child_rule", "Making directory: " + directory, level="debug")
         os.mkdir(directory)
 
     sanitized_rule_name = sanitizeFileName(rule["name"])
@@ -30,24 +29,33 @@ def split_child_rule(rule, directory):
 
     for index, child in enumerate(rule["children"]):
         child_filename = sanitizeFileName(child["name"])
-        split_child_rule(child, children_directory)
-        rule["children"][index] = "#include:{d}/{f}.json".format(d=sanitized_rule_name, f=child_filename)
+
+        # Handle use_full_paths option
+        child_path = ""
+        if use_full_paths and parent_path:
+            child_path = parent_path + "/" + sanitized_rule_name
+        else:
+            child_path = sanitized_rule_name
+
+        split_child_rule(child, children_directory, use_full_paths, child_path)
+
+        rule["children"][index] = f"#include:{child_path}/{child_filename}.json"
 
     rule_filename = directory + "/" + sanitized_rule_name + ".json"
     with open(rule_filename, "w") as rule_file:
         json.dump(rule, rule_file, indent=2)
 
 
-def split_rules(rules, output_directory):
+def split_rules(rules, output_directory, use_full_paths):
     ## Check Output Directory and create if required
     if not os.path.exists(output_directory):
-        # print('Making directory: ' + output_directory)
+        # report("split_rules", "Making directory: " + output_directory, level="debug")
         os.mkdir(output_directory)
 
     ## Iterate through child rules
     for index, child in enumerate(rules["rules"]["children"]):
         child_filename = sanitizeFileName(child["name"]) + ".json"
-        split_child_rule(child, output_directory)
+        split_child_rule(child, output_directory, use_full_paths, parent_path="")
         rules["rules"]["children"][index] = "#include:" + child_filename
 
     ## Create variables file
@@ -61,17 +69,32 @@ def split_rules(rules, output_directory):
         json.dump(rules["rules"], main_file, indent=2)
 
 
-def merge_child_rule(file_path):
-    # print('Loading file: ' + file_path)
+def merge_child_rule(file_path, main_dir):
+    # report("merge_child_rule", "Loading file: " + file_path, level="debug")
     with open(file_path, "r") as file:
         rules = json.load(file)
-    parent_file_dir = os.path.dirname(file_path)
-    child_file_prefix = parent_file_dir + "/"
+
+    # Infer parent dir
+    parent_dir = os.path.dirname(file_path)
 
     for index, child in enumerate(rules["children"]):
         if isinstance(child, str) and "#include:" in child:
-            child_filename = child.replace("#include:", child_file_prefix)
-            child_rules = merge_child_rule(child_filename)
+            include_filename = child.replace("#include:", "")
+
+            # Check if child file is relative to parent folder, or to main json
+            relative_include_path = parent_dir + "/" + include_filename
+            main_include_path = main_dir + "/" + include_filename
+
+            if os.path.isfile(relative_include_path):
+                child_path = relative_include_path
+            elif os.path.isfile(main_include_path):
+                child_path = main_include_path
+            else:
+                raise Exception(
+                    f"File {include_filename} not found as either relative or full path from main. Please confirm file exists and try again."
+                )
+
+            child_rules = merge_child_rule(child_path, main_dir)
             rules["children"][index] = child_rules
 
     return rules
@@ -79,21 +102,21 @@ def merge_child_rule(file_path):
 
 def merge_rules(main_file_path):
     rules = {}
-    # print('Loading main file: ' + main_file_path)
+    # report("merge_rules", "Loading main file: " + main_file_path, level="debug")
     with open(main_file_path, "r") as file:
         rules["rules"] = json.load(file)
-    parent_file_dir = os.path.dirname(main_file_path)
-    child_file_prefix = parent_file_dir + "/"
+    main_dir = os.path.dirname(main_file_path)
+    child_file_prefix = main_dir + "/"
 
     for index, child in enumerate(rules["rules"]["children"]):
         if isinstance(child, str) and "#include:" in child:
             child_filename = child.replace("#include:", child_file_prefix)
-            child_rules = merge_child_rule(child_filename)
+            child_rules = merge_child_rule(child_filename, main_dir)
             rules["rules"]["children"][index] = child_rules
 
     if isinstance(rules["rules"]["variables"], str) and "#include:" in rules["rules"]["variables"]:
         variables_filename = rules["rules"]["variables"].replace("#include:", child_file_prefix)
-        # print('Loading variables file: ' + variables_filename)
+        # report("merge_rules", "Loading variables file: " + variables_filename, level="debug")
         with open(variables_filename, "r") as variables_file:
             rules["rules"]["variables"] = json.load(variables_file)
 
@@ -141,5 +164,5 @@ def apply_variable_by_jsonpath(rules, path, value):
     if len(rule_found) > 0:
         jsonpath_expression.update(rules, value)
     else:
-        click.secho('WARNING: Path "{p}" not found in supplied rules. No update performed'.format(p=path), fg="yellow")
+        click.secho(f"WARNING: Path '{path}' not found in supplied rules. No update performed", fg="yellow")
     return rules
