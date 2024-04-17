@@ -98,7 +98,7 @@ python pypeline.py --folder mypipeline import --property www.example.com
 2a. Import the latest version of an existing property to your pipeline as its templates, but use include paths relative to the main json file.
 
 ```shell
-python pypeline.py --folder mypipeline import --property www.example.com --useFUllPaths
+python pypeline.py --folder mypipeline import --property www.example.com --useFullPaths
 ```
 
 3. Import a specific version of an existing property to your pipeline as its templates
